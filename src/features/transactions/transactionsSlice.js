@@ -1,5 +1,9 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { createTransaction, fetchTransactions } from "./transactionsThunk";
+import {
+  createTransaction,
+  fetchTransactions,
+  removeTransaction,
+} from "./transactionsThunk";
 
 const initialState = {
   isLoading: false,
@@ -46,6 +50,27 @@ const transactionsSlice = createSlice({
         state.transactions.push(action.payload);
       })
       .addCase(createTransaction.rejected, (state, action) => {
+        state.isLoading = false;
+        state.isError = false;
+        state.error = action.error.message;
+      });
+
+    builder
+      .addCase(removeTransaction.pending, (state) => {
+        state.isLoading = true;
+        state.isError = false;
+        state.error = "";
+      })
+      .addCase(removeTransaction.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.isError = false;
+        state.error = "";
+        if (action.payload) {
+          const deletedIndex = state.transactions.indexOf(action.payload);
+          state.transactions.splice(deletedIndex, 1);
+        }
+      })
+      .addCase(removeTransaction.rejected, (state, action) => {
         state.isLoading = false;
         state.isError = false;
         state.error = action.error.message;
