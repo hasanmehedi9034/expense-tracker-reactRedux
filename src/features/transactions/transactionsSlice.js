@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { fetchTransactions } from "./transactionsThunk";
+import { createTransaction, fetchTransactions } from "./transactionsThunk";
 
 const initialState = {
   isLoading: false,
@@ -31,6 +31,24 @@ const transactionsSlice = createSlice({
         state.isError = false;
         state.error = action.error.message;
         state.transactions = [];
+      });
+
+    builder
+      .addCase(createTransaction.pending, (state) => {
+        state.isLoading = true;
+        state.isError = false;
+        state.error = "";
+      })
+      .addCase(createTransaction.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.isError = false;
+        state.error = "";
+        state.transactions.push(action.payload);
+      })
+      .addCase(createTransaction.rejected, (state, action) => {
+        state.isLoading = false;
+        state.isError = false;
+        state.error = action.error.message;
       });
   },
 });
