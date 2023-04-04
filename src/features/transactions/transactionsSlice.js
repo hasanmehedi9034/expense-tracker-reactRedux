@@ -1,5 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 import {
+  changeTransaction,
   createTransaction,
   fetchTransactions,
   removeTransaction,
@@ -71,6 +72,35 @@ const transactionsSlice = createSlice({
         }
       })
       .addCase(removeTransaction.rejected, (state, action) => {
+        state.isLoading = false;
+        state.isError = false;
+        state.error = action.error.message;
+      });
+
+    builder
+      .addCase(changeTransaction.pending, (state) => {
+        state.isLoading = true;
+        state.isError = false;
+        state.error = "";
+      })
+      .addCase(changeTransaction.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.isError = false;
+        state.error = "";
+        if (action.payload) {
+          state.transactions = state.transactions.map((t) => {
+            if (action.payload.id === t.id) {
+              return {
+                id: action.payload.id,
+                name: action.payload.name,
+                type: action.payload.type,
+                amount: action.payload.amount,
+              };
+            } else return t;
+          });
+        }
+      })
+      .addCase(changeTransaction.rejected, (state, action) => {
         state.isLoading = false;
         state.isError = false;
         state.error = action.error.message;
